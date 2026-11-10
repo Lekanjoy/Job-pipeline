@@ -29,11 +29,33 @@ Dashboard (app/page.js) reads and updates the same sheet.
    it stays Approved for the next pipeline run to retry. For a web-form job, it
    moves to Needs Manual Apply because web forms are not submitted automatically.
 3. Open **Apply kit** on a job to copy your details and saved answers and to
-   download the right CV. Open the application, fill it in, submit.
+   download the right CV. The optional browser extension can fill supported
+   empty fields; review the application, attach your CV, and submit it yourself.
 4. Click **Mark Applied**. A follow-up reminder is set for 7 days later.
 
 Jobs scoring at or above `AUTO_APPROVE_MIN_SCORE` skip step 2. Only email jobs
 are ever submitted for you; web forms are always submitted by you.
+
+### Browser form helper
+
+The optional Chrome/Edge extension fills confidently matched, empty text fields
+on the active application page. It does not submit forms or upload resumes;
+select your resume in the application form yourself.
+Install it by opening `chrome://extensions` (or `edge://extensions`), enabling
+Developer mode, and choosing **Load unpacked** with the `browser-extension/`
+folder. Open the extension and import `config/applyKit.json` once. The Apply Kit
+is saved in extension storage and should stay available across pages, tabs, and
+browser restarts. Then open any job application, choose **Fill this page**,
+review every field, attach the downloaded resume, and submit the application
+manually. Re-import only if you change the Apply Kit or install the extension
+under a different browser profile. After updating the
+extension files, click **Reload** for it on the extensions page and refresh the
+application tab.
+
+The Apply Kit is stored in the browser's local extension storage. The extension
+requests access to the active tab only when you click it and does not send your
+profile to a server. Import the file again after changing `config/applyKit.json`,
+or use **Forget saved Apply Kit** to remove the locally stored copy.
 
 ## Project layout
 
@@ -66,6 +88,14 @@ are ever submitted for you; web forms are always submitted by you.
 | `api/resume/route.js`  | Downloads one of the 3 CVs.                                     |
 | `api/clear/route.js`   | Clear all (only works when `ALLOW_CLEAR=true`).                 |
 | `api/format/route.js`  | One-time sheet styling. Run it once.                            |
+
+### `browser-extension/`
+
+| File           | What it does                                                    |
+| -------------- | --------------------------------------------------------------- |
+| `manifest.json` | Chrome/Edge extension permissions and popup configuration.    |
+| `popup.js`      | Imports the Apply Kit and runs the fill action on the active tab. |
+| `fill.js`       | Matches supported fields and fills empty values without submitting. |
 
 ### `lib/`
 

@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Job Pipeline Apply Helper",
+  "version": "1.0.0",
+  "description": "Fill supported job application fields from your local Apply Kit.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Fill application"
+  }
+}
