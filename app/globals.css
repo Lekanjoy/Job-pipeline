@@ -214,6 +214,23 @@ body {
   font-weight: 600;
 }
 
+.applyMethodTag {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.applyMethodTag.auto {
+  color: var(--status-applied);
+  background: #eaf4ee;
+}
+
+.applyMethodTag.manual {
+  color: var(--status-manual);
+  background: #fff1e9;
+}
+
 .cvTag {
   color: var(--text-muted);
 }

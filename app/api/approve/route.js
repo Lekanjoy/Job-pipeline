@@ -5,8 +5,8 @@
 // Clicking Approve acts immediately:
 //   - email job (Submission Method "Email" + address in Notes): the
 //     application is sent now, status becomes "Applied (Auto)" and a
-//     follow-up is set 7 days out. If sending fails, the row stays
-//     "Approved" and the next pipeline run retries it.
+//     follow-up is set 7 days out. SMTP failures keep the row "Approved"
+//     so the next pipeline run can retry it.
 //   - any other job (web form): moves straight to "Needs Manual Apply".
 // Marking a job Applied also sets a 7-day follow-up.
 
@@ -24,9 +24,9 @@ const ALLOWED_STATUSES = new Set(Object.values(STATUS));
 const FOLLOW_UP_STATUSES = new Set([STATUS.APPLIED, STATUS.APPLIED_AUTO]);
 
 const RESUME_FILENAME_BY_LABEL = {
-  frontend_engineer: "Daniel_Chimezie_CV_Frontend_Engineer.pdf",
-  react_native: "Daniel_Chimezie_CV_React_Native_Developer.pdf",
-  product_engineer: "Daniel_Chimezie_CV_Product_Engineer.pdf",
+  frontend_engineer: "Olalekan Alabi Resume.pdf",
+  react_native: "Olalekan Alabi Resume.pdf",
+  product_engineer: "Olalekan Alabi Resume.pdf",
 };
 
 export async function POST(request) {
@@ -57,7 +57,7 @@ export async function POST(request) {
       );
 
       if (job && method === "email" && emailMatch) {
-        const sent = await sendApplication(
+        const result = await sendApplication(
           {
             title: job["Role Title"] || "",
             company: job.Company || "",
@@ -67,19 +67,40 @@ export async function POST(request) {
           },
           emailMatch[0],
         );
-        if (sent) {
+        if (result.sent) {
           await updateStatus(rowNumber, STATUS.APPLIED_AUTO);
           await setFollowUpDate(rowNumber, 7);
-          return NextResponse.json({ success: true, sent: true });
+          return NextResponse.json({
+            success: true,
+            sent: true,
+            outcome: "applied",
+          });
         }
-        // Sending failed: keep it Approved so the next run retries.
+        if (result.reason === "resume_missing") {
+          await updateStatus(rowNumber, STATUS.NEEDS_MANUAL);
+          return NextResponse.json({
+            success: true,
+            sent: false,
+            outcome: "manual_required",
+            reason: result.reason,
+          });
+        }
+        // SMTP failure: keep it Approved so the next pipeline run retries.
         await updateStatus(rowNumber, STATUS.APPROVED);
-        return NextResponse.json({ success: true, sent: false });
+        return NextResponse.json({
+          success: true,
+          sent: false,
+          outcome: "send_failed",
+        });
       }
 
       // Web-form job: nothing to send, go straight to the manual queue.
       await updateStatus(rowNumber, STATUS.NEEDS_MANUAL);
-      return NextResponse.json({ success: true, sent: false });
+      return NextResponse.json({
+        success: true,
+        sent: false,
+        outcome: "manual_required",
+      });
     }
 
     await updateStatus(rowNumber, status);

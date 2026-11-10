@@ -7,9 +7,9 @@ import fs from "fs";
 import path from "path";
 
 const FILES = {
-  frontend_engineer: "Daniel_Chimezie_CV_Frontend_Engineer.pdf",
-  react_native: "Daniel_Chimezie_CV_React_Native_Developer.pdf",
-  product_engineer: "Daniel_Chimezie_CV_Product_Engineer.pdf",
+  frontend_engineer: "Olalekan Alabi Resume.pdf",
+  react_native: "Olalekan Alabi Resume.pdf",
+  product_engineer: "Olalekan Alabi Resume.pdf",
 };
 
 export async function GET(request) {

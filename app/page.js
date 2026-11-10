@@ -213,9 +213,16 @@ export default function Dashboard() {
       return;
     }
     const data = await updateStatus(job._row, "Approved");
-    if (email && data && data.sent === false) {
+    if (!data || !data.success) return;
+    if (data.outcome === "manual_required") {
+      const message =
+        data.reason === "resume_missing"
+          ? "The resume file is missing. This job has been moved to Needs Manual Apply."
+          : "This job can't be submitted automatically. It has been moved to Needs Manual Apply.";
+      window.alert(message);
+    } else if (data.outcome === "send_failed") {
       window.alert(
-        "The email could not be sent. The job stays Approved and the next run will retry. Check the email settings in .env.local.",
+        "The application email could not be sent. The job stays Approved and the next pipeline run will retry it. Check the SMTP settings in .env.local.",
       );
     }
   }
@@ -256,7 +263,7 @@ export default function Dashboard() {
       <div className="pageHead">
         <div>
           <h1 className="wordmark">Job Pipeline</h1>
-          <div className="tagline">Daniel&rsquo;s application tracker</div>
+          <div className="tagline">Olalekan&rsquo;s application tracker</div>
         </div>
         <div className="headActions">
           <button className="ghostBtn" onClick={loadJobs}>
@@ -346,6 +353,11 @@ export default function Dashboard() {
                       )}
                   </div>
                   <div className="jobMetaLine">
+                    <span
+                      className={`applyMethodTag ${applyEmail ? "auto" : "manual"}`}
+                    >
+                      {applyEmail ? "Email auto-apply" : "Manual apply"}
+                    </span>
                     {job["Match Score"] && (
                       <span className="scoreTag">
                         Match {job["Match Score"]}

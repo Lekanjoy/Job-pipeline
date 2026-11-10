@@ -25,8 +25,9 @@ Dashboard (app/page.js) reads and updates the same sheet.
 
 1. Open the dashboard. Jobs are sorted by match score.
 2. **Approve** a job you want. For an email job, your CV is sent at once
-   (after a confirmation that shows the address). For a web-form job, it moves
-   to Needs Manual Apply.
+   (after a confirmation that shows the address). If the email cannot be sent,
+   it stays Approved for the next pipeline run to retry. For a web-form job, it
+   moves to Needs Manual Apply because web forms are not submitted automatically.
 3. Open **Apply kit** on a job to copy your details and saved answers and to
    download the right CV. Open the application, fill it in, submit.
 4. Click **Mark Applied**. A follow-up reminder is set for 7 days later.
