@@ -10,7 +10,7 @@ Chimezie. Runs on your PC for testing and on a RackNerd VPS for the daily run.
 ```
 cron (7am daily)  ->  POST /api/run
                          |
-   1. lib/fetchers/      pull jobs from 9 sources
+   1. lib/fetchers/      pull jobs from 10 sources, including recent LinkedIn posts
    2. lib/filters.js     keep eligible countries, drop duplicates
    3. lib/scorer.js      score each job, pick the right CV
    4. lib/sheets.js      write the best new matches to the sheet
@@ -109,7 +109,7 @@ or use **Forget saved Apply Kit** to remove the locally stored copy.
 | `mailer.js`     | Daily digest and follow-up emails.                             |
 | `autoApply.js`  | Sends one application email with the right CV attached.        |
 | `loadJson.js`   | Loads the config files.                                        |
-| `fetchers/`     | One file per job source, plus `index.js` that runs them all.   |
+| `fetchers/`     | One file per job source, including recent LinkedIn posts.      |
 
 ### `scripts/`
 
@@ -127,6 +127,7 @@ daily. `logs/` holds the daily run log.
 | Setting                                                                                 | What it does                                                               |
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `GOOGLE_SERVICE_ACCOUNT_KEY_PATH`, `GOOGLE_SPREADSHEET_ID`, `GOOGLE_SHEET_TAB`          | Connect to your sheet.                                                     |
+| `SERPER_API_KEY`                                                                        | Optional. Enables searching publicly indexed LinkedIn posts with Serper.     |
 | `SMTP_EMAIL`, `SMTP_APP_PASSWORD`, `SMTP_SERVER`, `SMTP_PORT`, `DIGEST_RECIPIENT_EMAIL` | Sending email. Gmail needs an App Password.                                |
 | `MINIMUM_MATCH_SCORE`                                                                   | Jobs below this never reach the sheet. Default 55.                         |
 | `AUTO_APPROVE_MIN_SCORE`                                                                | Jobs at or above this skip the Approve step. Default 80.                   |
@@ -136,6 +137,14 @@ daily. `logs/` holds the daily run log.
 | `CRON_SECRET`                                                                           | Protects `/api/run`.                                                       |
 | `DASHBOARD_USER`, `DASHBOARD_PASSWORD`                                                  | Switch on the dashboard login.                                             |
 | `ALLOW_CLEAR`                                                                           | Enables Clear all. Keep false on the VPS.                                  |
+
+When configured, LinkedIn search makes three Serper searches per pipeline run,
+one for each target role category. It only includes publicly indexed LinkedIn
+posts with a verifiable date within the previous seven days; undated posts are
+excluded. Queries use ordinary keywords for compatibility with Serper free
+accounts; freshness is enforced against each result's reported date. Set the
+key in `.env.local` and in the daily-run environment on the VPS. Without the
+key, the LinkedIn source is skipped.
 
 ## Setup on your PC
 
